@@ -3367,6 +3367,7 @@ def custom_swagger_ui() -> str:
             `;
             
             document.getElementById('explorer-panel').innerHTML = html;
+            updateCurl(id);
         }
 
         function renderHeadersSection(endpoint) {
