@@ -1,0 +1,101 @@
+team,tournament,year,mp,possession,shots_per_match,sot_per_match,corners_per_match,yellow_cards_per_match,red_cards_per_match,xg_per_match
+Argentina,FIFA World Cup,2022,7,57.4,14.9,5.9,5.7,2.4,0.0,1.85
+France,FIFA World Cup,2022,7,51.3,13.7,5.1,4.4,1.1,0.0,1.68
+Croatia,FIFA World Cup,2022,7,54.3,11.3,4.0,4.1,1.1,0.0,1.05
+Morocco,FIFA World Cup,2022,7,39.0,8.7,2.7,1.9,1.3,0.14,0.95
+Brazil,FIFA World Cup,2022,5,56.2,18.4,8.0,7.4,1.2,0.0,2.25
+England,FIFA World Cup,2022,5,62.8,12.0,5.2,4.8,0.2,0.0,1.72
+Netherlands,FIFA World Cup,2022,5,53.0,8.6,3.2,3.8,2.4,0.2,0.92
+Portugal,FIFA World Cup,2022,5,60.4,13.2,5.4,5.6,1.2,0.0,1.58
+Spain,FIFA World Cup,2022,4,75.8,11.8,3.8,5.0,0.5,0.0,1.52
+Japan,FIFA World Cup,2022,4,35.3,11.3,4.0,4.8,1.5,0.0,1.1
+Senegal,FIFA World Cup,2022,4,47.8,11.5,3.0,3.8,1.8,0.0,1.05
+Australia,FIFA World Cup,2022,4,37.8,8.5,2.5,2.8,1.8,0.0,0.68
+Switzerland,FIFA World Cup,2022,4,49.0,10.8,3.2,5.0,2.2,0.0,1.12
+USA,FIFA World Cup,2022,4,53.0,11.5,3.8,5.2,1.2,0.0,1.02
+Poland,FIFA World Cup,2022,4,36.5,8.0,2.0,2.8,1.8,0.0,0.82
+South Korea,FIFA World Cup,2022,4,48.3,12.5,4.5,5.2,1.5,0.0,1.18
+Germany,FIFA World Cup,2022,3,59.3,22.7,9.3,8.3,1.0,0.0,2.75
+Ecuador,FIFA World Cup,2022,3,53.3,10.0,3.7,3.7,1.0,0.0,1.22
+Uruguay,FIFA World Cup,2022,3,48.7,11.3,3.7,4.3,2.7,0.0,1.28
+Mexico,FIFA World Cup,2022,3,54.0,14.3,4.3,5.7,2.3,0.0,1.15
+Belgium,FIFA World Cup,2022,3,57.0,11.7,3.7,4.3,1.7,0.0,1.08
+Ghana,FIFA World Cup,2022,3,42.0,8.3,3.0,2.7,2.7,0.0,1.1
+Denmark,FIFA World Cup,2022,3,60.0,11.7,3.7,6.0,1.7,0.0,0.92
+Tunisia,FIFA World Cup,2022,3,44.3,11.0,3.0,4.7,1.7,0.0,0.85
+Saudi Arabia,FIFA World Cup,2022,3,43.3,9.7,3.0,2.7,4.7,0.0,0.95
+Iran,FIFA World Cup,2022,3,36.7,11.3,3.3,2.7,2.3,0.0,1.18
+Costa Rica,FIFA World Cup,2022,3,31.3,4.0,2.3,1.7,2.0,0.0,0.48
+Cameroon,FIFA World Cup,2022,3,41.7,11.0,4.7,4.0,2.7,0.33,1.12
+Canada,FIFA World Cup,2022,3,52.0,11.7,1.3,4.0,2.7,0.0,1.25
+Wales,FIFA World Cup,2022,3,46.7,8.7,2.3,2.7,1.7,0.33,0.72
+Serbia,FIFA World Cup,2022,3,49.0,10.3,3.7,3.0,4.0,0.0,1.15
+Qatar,FIFA World Cup,2022,3,45.0,6.7,2.0,2.3,2.3,0.0,0.52
+Argentina,FIFA World Cup,2018,4,61.0,14.0,4.5,5.5,2.8,0.0,1.48
+France,FIFA World Cup,2018,7,48.0,12.0,4.5,3.6,1.7,0.0,1.38
+Croatia,FIFA World Cup,2018,7,55.0,14.5,4.2,4.8,2.1,0.0,1.32
+Belgium,FIFA World Cup,2018,7,52.0,15.1,5.6,5.1,1.6,0.0,1.85
+Brazil,FIFA World Cup,2018,5,56.0,20.8,8.2,7.6,1.4,0.0,2.15
+Uruguay,FIFA World Cup,2018,5,47.0,12.4,4.2,4.4,0.6,0.0,1.25
+England,FIFA World Cup,2018,7,53.0,13.6,4.6,5.3,1.1,0.0,1.65
+Russia,FIFA World Cup,2018,5,43.0,12.8,4.0,3.6,1.2,0.2,1.15
+Spain,UEFA Euro,2024,7,57.3,15.6,5.6,5.9,1.7,0.14,1.98
+England,UEFA Euro,2024,7,53.7,9.7,3.1,3.4,1.9,0.0,1.08
+Spain,UEFA Euro,2020,6,66.8,18.7,6.3,6.8,1.2,0.0,2.38
+Italy,UEFA Euro,2020,7,53.2,16.7,4.8,4.9,1.7,0.0,1.75
+Colombia,Copa América,2024,6,51.8,11.8,4.2,4.0,2.0,0.17,1.52
+Argentina,Copa América,2024,6,54.5,13.2,4.7,4.8,1.3,0.0,1.62
+Uruguay,Copa América,2024,6,51.2,12.5,4.2,4.5,2.1,0.0,1.45
+Brazil,Copa América,2024,4,58.5,14.3,5.0,5.8,2.3,0.0,1.55
+Venezuela,Copa América,2024,4,47.5,12.0,3.8,4.2,2.0,0.0,1.18
+Ecuador,Copa América,2024,4,48.2,10.5,3.5,3.8,1.8,0.25,1.02
+USA,Copa América,2024,3,52.3,11.3,3.7,4.3,1.3,0.33,1.12
+Mexico,Copa América,2024,3,61.0,15.7,4.3,6.0,1.7,0.0,1.38
+Chile,Copa América,2024,3,48.7,8.0,2.3,3.3,2.7,0.33,0.68
+Peru,Copa América,2024,3,44.0,7.3,1.7,2.7,3.0,0.33,0.58
+Paraguay,Copa América,2024,3,45.3,10.7,3.3,3.7,2.3,0.33,0.85
+Costa Rica,Copa América,2024,3,38.0,6.7,1.7,2.0,2.3,0.0,0.58
+Panama,Copa América,2024,4,43.5,9.5,3.3,2.8,2.0,0.25,0.92
+Jamaica,Copa América,2024,3,41.3,8.0,2.3,2.3,2.3,0.0,0.72
+Bolivia,Copa América,2024,3,36.5,6.7,1.7,2.0,2.0,0.0,0.48
+Japan,AFC Asian Cup,2023,5,62.4,14.2,5.2,6.4,1.0,0.0,1.82
+Iran,AFC Asian Cup,2023,6,52.8,15.4,5.0,5.5,2.2,0.17,1.65
+South Korea,AFC Asian Cup,2023,6,61.8,13.8,4.8,6.2,1.8,0.0,1.72
+Australia,AFC Asian Cup,2023,5,58.2,13.4,4.2,5.8,1.2,0.0,1.48
+Morocco,Africa Cup of Nations,2023,4,61.3,12.8,4.0,5.2,1.3,0.0,1.52
+Senegal,Africa Cup of Nations,2023,4,57.5,12.0,4.2,4.8,2.0,0.0,1.42
+Nigeria,Africa Cup of Nations,2023,7,47.8,11.4,3.6,3.8,1.4,0.0,1.25
+Ivory Coast,Africa Cup of Nations,2023,7,54.2,13.0,4.2,4.5,1.9,0.14,1.38
+Egypt,Africa Cup of Nations,2023,4,59.5,13.5,4.3,5.0,2.0,0.25,1.48
+Ghana,Africa Cup of Nations,2023,3,48.0,9.0,3.3,3.3,2.3,0.0,0.95
+Cameroon,Africa Cup of Nations,2023,4,52.3,10.0,3.0,3.8,1.8,0.0,1.02
+Algeria,Africa Cup of Nations,2023,3,59.3,12.7,4.0,5.3,1.7,0.0,1.32
+Tunisia,Africa Cup of Nations,2023,3,56.7,9.3,2.7,4.0,1.3,0.0,0.85
+South Africa,Africa Cup of Nations,2023,7,49.2,10.4,3.1,3.2,1.1,0.0,1.1
+DR Congo,Africa Cup of Nations,2023,7,50.8,12.1,3.5,4.1,1.6,0.0,1.28
+Angola,Africa Cup of Nations,2023,5,44.2,9.8,3.2,3.0,2.0,0.2,0.95
+Mali,Africa Cup of Nations,2023,5,54.8,11.4,3.6,4.6,1.4,0.0,1.22
+Guinea,Africa Cup of Nations,2023,5,48.0,9.6,2.8,3.2,1.8,0.2,0.88
+Mauritania,Africa Cup of Nations,2023,4,41.5,10.3,3.3,3.0,2.5,0.0,0.92
+Namibia,Africa Cup of Nations,2023,4,37.3,7.5,2.3,2.3,1.5,0.25,0.62
+Cape Verde,Africa Cup of Nations,2023,5,52.0,11.8,3.8,4.2,1.6,0.0,1.25
+Equatorial Guinea,Africa Cup of Nations,2023,4,47.8,9.3,3.5,3.0,1.8,0.25,1.08
+Gambia,Africa Cup of Nations,2023,3,43.3,8.0,2.3,2.7,2.0,0.33,0.72
+Guinea-Bissau,Africa Cup of Nations,2023,3,44.7,8.7,2.7,2.7,1.7,0.0,0.78
+Mozambique,Africa Cup of Nations,2023,3,45.3,9.3,3.0,3.0,2.3,0.0,0.88
+Zambia,Africa Cup of Nations,2023,3,46.7,8.3,2.7,2.7,2.0,0.0,0.82
+Tanzania,Africa Cup of Nations,2023,3,42.0,6.7,2.0,2.0,2.3,0.33,0.52
+Norway,UEFA Euro,2024,8,53.5,12.5,4.2,5.8,1.4,0.05,1.45
+Turkey,UEFA Euro,2024,5,51.2,13.2,4.4,4.8,2.3,0.05,1.28
+Austria,UEFA Euro,2024,4,48.8,11.4,3.8,4.6,2.2,0.05,1.22
+Scotland,UEFA Euro,2024,3,44.5,8.4,2.6,3.2,1.8,0.08,0.78
+Ukraine,UEFA Euro,2024,3,48.2,10.6,3.4,4.0,1.5,0.05,1.05
+Czech Republic,UEFA Euro,2024,3,47.5,11.2,3.5,4.4,2.0,0.08,1.12
+Georgia,UEFA Euro,2024,4,40.2,9.2,3.2,3.0,2.4,0.05,0.92
+Slovakia,UEFA Euro,2024,4,46.2,10.2,3.2,3.8,1.7,0.05,1.02
+Romania,UEFA Euro,2024,4,42.4,9.6,3.1,3.6,1.8,0.05,0.95
+Hungary,UEFA Euro,2024,3,43.8,9.8,3.2,3.8,2.0,0.05,1.05
+Slovenia,UEFA Euro,2024,4,40.8,8.6,2.8,3.2,2.1,0.05,0.88
+Albania,UEFA Euro,2024,3,42.8,8.8,2.9,3.4,2.2,0.08,0.92
+Greece,UEFA Euro,2024,6,49.5,11.8,3.8,4.8,1.9,0.05,1.18
+Sweden,UEFA Euro,2024,8,53.2,13.0,4.4,5.6,1.5,0.05,1.4

@@ -1,0 +1,38 @@
+city,country,altitude_meters
+La Paz,Bolivia,3625.0
+Quito,Ecuador,2850.0
+Bogota,Colombia,2625.0
+Cochabamba,Bolivia,2560.0
+Toluca,Mexico,2660.0
+Mexico City,Mexico,2240.0
+Arequipa,Peru,2335.0
+Caracas,Venezuela,900.0
+Santiago,Chile,570.0
+Denver,United States,1609.0
+Salt Lake City,United States,1288.0
+Guadalajara,Mexico,1566.0
+Monterrey,Mexico,540.0
+Madrid,Spain,657.0
+Munich,Germany,520.0
+Zurich,Switzerland,408.0
+Vienna,Austria,171.0
+Geneva,Switzerland,375.0
+Johannesburg,South Africa,1753.0
+Nairobi,Kenya,1795.0
+Addis Ababa,Ethiopia,2355.0
+Pretoria,South Africa,1339.0
+Tehran,Iran,1200.0
+Kathmandu,Nepal,1400.0
+Buenos Aires,Argentina,25.0
+Rio de Janeiro,Brazil,5.0
+Montevideo,Uruguay,43.0
+Lima,Peru,154.0
+Paris,France,35.0
+London,England,15.0
+Rome,Italy,21.0
+Berlin,Germany,34.0
+Washington D.C.,United States,22.0
+Tokyo,Japan,40.0
+Seoul,South Korea,38.0
+Sydney,Australia,19.0
+Cairo,Egypt,23.0

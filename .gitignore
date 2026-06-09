@@ -1,0 +1,39 @@
+# Python bytecode and caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+
+# SQLite temporary transaction files (Keep main database.sqlite but ignore WAL/SHM logs)
+data/database.sqlite-wal
+data/database.sqlite-shm
+data/*.db-wal
+data/*.db-shm
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Environment variables (sensitive data)
+.env
+.env.local
+.env.*.local
