@@ -377,7 +377,7 @@ You can easily call the prediction endpoint from any modern JavaScript framework
 // Function to fetch a match prediction
 async function fetchPrediction(teamA, teamB) {
   // Construct the URL with query parameters
-  const baseUrl = "https://your-api.onrender.com/api/v1/predict";
+  const baseUrl = "https://wc-predictive-api.onrender.com/api/v1/predict";
   const params = new URLSearchParams({
     team_a: teamA,
     team_b: teamB,
@@ -421,7 +421,7 @@ If you are building a Discord bot, Telegram bot, or a separate backend service, 
 import requests
 
 def get_match_prediction(team_a, team_b):
-    url = "https://your-api.onrender.com/api/v1/predict"
+    url = "https://wc-predictive-api.onrender.com/api/v1/predict"
     params = {
         "team_a": team_a,
         "team_b": team_b,
