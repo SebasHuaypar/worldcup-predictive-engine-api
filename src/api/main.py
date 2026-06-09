@@ -2799,6 +2799,10 @@ def custom_swagger_ui() -> str:
                 display: flex !important;
             }
 
+            .sidebar-logo-container {
+                display: none;
+            }
+
             .sidebar {
                 display: flex !important;
                 position: fixed;
