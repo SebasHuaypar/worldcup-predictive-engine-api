@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI, Query, HTTPException, BackgroundTasks, Header, Depends
+from fastapi.openapi.utils import get_openapi
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -16,6 +17,47 @@ app = FastAPI(
     version="1.0.0",
     docs_url=None
 )
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="World Cup Predictive Engine API",
+        version="1.0.0",
+        description="""
+REST API to predict World Cup match outcomes (goals, corners, cards, knockouts) using Machine Learning models and Monte Carlo simulations.
+
+### Key Features:
+* **Monte Carlo Simulations**: Runs 10,000+ trials per match to estimate win/draw/loss probabilities and exact score distributions.
+* **Contextual Variables**: Integrates ELO changes, squad market values, player absences (injuries/suspensions), referee strictness, and venue altitude fatigue.
+* **Automated Data Pipelines**: Integrated scraper (FBref, Transfermarkt) and training scripts that run via GitHub Actions.
+
+### Contacts:
+* **Developer**: Sebastián Huaypar Acurio
+* **LinkedIn**: [LinkedIn Profile](https://www.linkedin.com/in/sebashuaypar)
+* **GitHub**: [GitHub Profile](https://github.com/SebasHuaypar)
+""",
+        routes=app.routes,
+    )
+    openapi_schema["info"]["x-logo"] = {
+        "url": "/static/logo.png"
+    }
+    openapi_schema["servers"] = [
+        {"url": "https://wc-predictive-api.onrender.com", "description": "Production Server"},
+        {"url": "http://localhost:8000", "description": "Local Development Server"}
+    ]
+    openapi_schema["info"]["contact"] = {
+        "name": "Sebastián Huaypar Acurio",
+        "url": "https://www.linkedin.com/in/sebashuaypar",
+    }
+    openapi_schema["info"]["license"] = {
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT"
+    }
+    app.openapi_schema = openapi_schema
+    return openapi_schema
+
+app.openapi = custom_openapi
 
 os.makedirs("static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
