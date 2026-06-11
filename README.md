@@ -41,7 +41,8 @@ You do not need to deploy a separate frontend application. The FastAPI server di
 
 ### Key Features:
 - **Interactive Simulator**: Select any of the 48 qualified World Cup 2026 teams.
-- **Responsive Design**: Works perfectly on mobile and desktop devices.
+- **Responsive Design**: Works perfectly on mobile devices, tablets, and desktops, including optimized text scaling for score matrices on small viewports.
+- **Projected Possession Display**: Visualizes projected team possession at the first level (integrated into the Win Probability panel and the Match Overview table).
 - **Live Monte Carlo Simulations**: When you select two teams and click "Simulate", the frontend connects to the API, runs the configured parallel match simulations, and visualizes the probabilities in real-time.
 - **Dynamic Knockout Logic**: Toggle the knockout setting to automatically simulate extra time and penalty shootouts if a match ends in a draw.
 - **Player Absences System (Dynamic Playstyle Overrides)**: Adjust sliders to account for active squad absences (injuries/suspensions), dynamically recalculating ELO values.
@@ -206,11 +207,30 @@ This fatigue factor adjusts the simulation parameters as follows:
 - Possession share is re-balanced based on relative fatigue.
 
 #### C. Referee Card strictness
-Referees are tracked in the database. Projected card counts are scaled by comparing the referee's career yellow card average against a standard baseline of 4.0 cards per match:
+Referees are tracked in the database. Projected card counts are estimated by blending the career strictness of the official (70%) with the combined card average of the two teams (30%). If no referee is specified, database averages (4.18 yellow cards, 0.17 red cards) are applied as a baseline:
 
-$$\text{Referee Factor} = \frac{\text{Referee Avg Yellow Cards}}{4.0}$$
+$$\text{Ref Strictness} = \text{Yellow Cards Per Match} + (2.0 \times \text{Red Cards Per Match})$$
 
-$$\lambda_{\text{cards}} \leftarrow \lambda_{\text{cards}} \times \text{Referee Factor}$$
+$$\text{Expected Total Cards} = 0.3 \times (\text{Team A Avg Cards} + \text{Team B Avg Cards}) + 0.7 \times \text{Ref Strictness}$$
+
+This total expected cards pool is then distributed proportionally between the teams based on their relative ELO ratings and inverse possession ratios (the team with lower possession and lower ELO defends more, thus drawing a higher share of amonestations):
+
+$$\text{Weight}_A = \frac{\text{Possession}_B}{50.0} \times \text{Elo Mult Cards}_A$$
+
+$$\text{Weight}_B = \frac{\text{Possession}_A}{50.0} \times \text{Elo Mult Cards}_B$$
+
+$$\lambda_{\text{cards A}} = \text{Expected Total Cards} \times \frac{\text{Weight}_A}{\text{Weight}_A + \text{Weight}_B}$$
+
+$$\lambda_{\text{cards B}} = \text{Expected Total Cards} \times \frac{\text{Weight}_B}{\text{Weight}_A + \text{Weight}_B}$$
+
+#### D. Corner Kick Projections
+Expected corners are calculated using the teams' rolling averages, ELO differences, and possession rates. To avoid extreme projections in high-possession games (e.g., possession > 65%), the possession multiplier is damped:
+
+$$\text{Poss Mult} = 1.0 + 0.4 \times \frac{\text{Possession} - 50.0}{50.0}$$
+
+$$\lambda_{\text{corners}} = \text{Rolling Corners For} \times \text{Poss Mult} \times \text{Elo Mult Corners}$$
+
+A realistic floor of `2.0` expected corners per team is enforced.
 
 ### 4. Monte Carlo Simulations
 Once the expected goal lambdas ($\lambda_A, \lambda_B$), corner lambdas, and card lambdas are calculated, the engine runs $N = 10,000$ simulation trials:
