@@ -528,6 +528,52 @@ def landing_page() -> str:
             }
         }
 
+        .dashboard-row-2-col {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard-row-2-col {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Progress bars for cards and corners */
+        .progress-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .progress-bar-container {
+            flex-grow: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 1s ease-out;
+            width: 0%;
+        }
+
+        .progress-bar-fill.corners {
+            background: linear-gradient(90deg, var(--fwc-blue), var(--fwc-cyan));
+            box-shadow: 0 0 8px rgba(14, 165, 233, 0.3);
+        }
+
+        .progress-bar-fill.cards {
+            background: linear-gradient(90deg, #4ade80, #16a34a);
+            box-shadow: 0 0 8px rgba(22, 163, 74, 0.3);
+        }
+
         .sub-card {
             background: rgba(13, 20, 38, 0.4);
             border: 1px solid var(--border-color);
@@ -747,10 +793,11 @@ def landing_page() -> str:
 
         .matrix-legend-gradient {
             width: 80px;
-            height: 8px;
-            border-radius: 4px;
-            background: linear-gradient(to right, rgba(38, 47, 85, 0.2), var(--fwc-red));
-            border: 1px solid var(--border-color);
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+            border: none;
         }
 
         /* Flex Bar Chart for Total Goals */
@@ -1402,6 +1449,152 @@ def landing_page() -> str:
                         </div>
                     </div>
 
+                    <!-- Row 1.5: Corners & Cards Projection -->
+                    <div class="dashboard-row-2-col" id="corners_cards_row">
+                        <!-- Card: Corners Projection -->
+                        <div class="sub-card">
+                            <div class="sub-card-title">
+                                Corners Projection
+                                <span class="tooltip-container right-aligned">
+                                    <span class="tooltip-icon">?</span>
+                                    <span class="tooltip-text">Projected team corners, possession split, and over/under threshold probabilities.</span>
+                                </span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <!-- Expected Corners Comparison -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; text-align: center;">
+                                    <div style="flex: 1;">
+                                        <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;" id="corners_team_a_label">Team A</span>
+                                        <div style="font-family: 'Oswald', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--fwc-cyan);" id="corners_exp_a">0.00</div>
+                                    </div>
+                                    <div style="flex: 1; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color);">
+                                        <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold;">Expected Total</span>
+                                        <div style="font-family: 'Oswald', sans-serif; font-size: 2rem; font-weight: 900; color: #ffffff;" id="corners_exp_total">0.00</div>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;" id="corners_team_b_label">Team B</span>
+                                        <div style="font-family: 'Oswald', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--fwc-red);" id="corners_exp_b">0.00</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Possession Split -->
+                                <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: bold;">
+                                        <span style="color: var(--fwc-cyan);" id="poss_val_a">50.0%</span>
+                                        <span style="color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px;">Possession Split</span>
+                                        <span style="color: var(--fwc-red);" id="poss_val_b">50.0%</span>
+                                    </div>
+                                    <div class="segmented-bar" style="height: 8px; margin: 0;">
+                                        <div class="segmented-bar-fill bar-fill-a" id="poss_bar_a" style="width: 50%"></div>
+                                        <div class="segmented-bar-fill bar-fill-b" id="poss_bar_b" style="width: 50%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Over/Under Thresholds -->
+                                <div style="display: flex; flex-direction: column; gap: 0.6rem; border-top: 1px solid var(--border-color); padding-top: 0.8rem;">
+                                    <div style="font-family: 'Oswald', sans-serif; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 0.2rem;">Over / Under Probability</div>
+                                    
+                                    <div class="progress-row">
+                                        <span style="width: 70px; color: var(--text-muted);">Over 7.5</span>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill corners" id="corners_over_7_5_bar" style="width: 0%"></div>
+                                        </div>
+                                        <span style="width: 45px; text-align: right; font-weight: bold;" id="corners_over_7_5_pct">0%</span>
+                                    </div>
+                                    <div class="progress-row">
+                                        <span style="width: 70px; color: var(--text-muted);">Over 8.5</span>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill corners" id="corners_over_8_5_bar" style="width: 0%"></div>
+                                        </div>
+                                        <span style="width: 45px; text-align: right; font-weight: bold;" id="corners_over_8_5_pct">0%</span>
+                                    </div>
+                                    <div class="progress-row">
+                                        <span style="width: 70px; color: var(--text-muted);">Over 9.5</span>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill corners" id="corners_over_9_5_bar" style="width: 0%"></div>
+                                        </div>
+                                        <span style="width: 45px; text-align: right; font-weight: bold;" id="corners_over_9_5_pct">0%</span>
+                                    </div>
+                                    <div class="progress-row">
+                                        <span style="width: 70px; color: var(--text-muted);">Over 10.5</span>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill corners" id="corners_over_10_5_bar" style="width: 0%"></div>
+                                        </div>
+                                        <span style="width: 45px; text-align: right; font-weight: bold;" id="corners_over_10_5_pct">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card: Cards Projection -->
+                        <div class="sub-card">
+                            <div class="sub-card-title">
+                                Cards Projection
+                                <span class="tooltip-container right-aligned">
+                                    <span class="tooltip-icon">?</span>
+                                    <span class="tooltip-text">Projected team cards, expected referee impact, and over/under card threshold probabilities.</span>
+                                </span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <!-- Expected Cards Comparison -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; text-align: center;">
+                                    <div style="flex: 1;">
+                                        <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;" id="cards_team_a_label">Team A</span>
+                                        <div style="font-family: 'Oswald', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--fwc-cyan);" id="cards_exp_a">0.00</div>
+                                    </div>
+                                    <div style="flex: 1; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color);">
+                                        <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold;">Expected Total</span>
+                                        <div style="font-family: 'Oswald', sans-serif; font-size: 2rem; font-weight: 900; color: #ffffff;" id="cards_exp_total">0.00</div>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;" id="cards_team_b_label">Team B</span>
+                                        <div style="font-family: 'Oswald', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--fwc-red);" id="cards_exp_b">0.00</div>
+                                    </div>
+                                </div>
+
+                                <!-- Referee Stats -->
+                                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.8rem; display: flex; align-items: center; justify-content: space-between;" id="cards_referee_box">
+                                    <span style="color: var(--text-muted);">Referee strictness:</span>
+                                    <span style="font-weight: bold; color: var(--fwc-green);" id="cards_referee_val">None selected</span>
+                                </div>
+
+                                <!-- Over/Under Thresholds -->
+                                <div style="display: flex; flex-direction: column; gap: 0.6rem; border-top: 1px solid var(--border-color); padding-top: 0.8rem;">
+                                    <div style="font-family: 'Oswald', sans-serif; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 0.2rem;">Over / Under Probability</div>
+                                    
+                                    <div class="progress-row">
+                                        <span style="width: 70px; color: var(--text-muted);">Over 2.5</span>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill cards" id="cards_over_2_5_bar" style="width: 0%"></div>
+                                        </div>
+                                        <span style="width: 45px; text-align: right; font-weight: bold;" id="cards_over_2_5_pct">0%</span>
+                                    </div>
+                                    <div class="progress-row">
+                                        <span style="width: 70px; color: var(--text-muted);">Over 3.5</span>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill cards" id="cards_over_3_5_bar" style="width: 0%"></div>
+                                        </div>
+                                        <span style="width: 45px; text-align: right; font-weight: bold;" id="cards_over_3_5_pct">0%</span>
+                                    </div>
+                                    <div class="progress-row">
+                                        <span style="width: 70px; color: var(--text-muted);">Over 4.5</span>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill cards" id="cards_over_4_5_bar" style="width: 0%"></div>
+                                        </div>
+                                        <span style="width: 45px; text-align: right; font-weight: bold;" id="cards_over_4_5_pct">0%</span>
+                                    </div>
+                                    <div class="progress-row">
+                                        <span style="width: 70px; color: var(--text-muted);">Over 5.5</span>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar-fill cards" id="cards_over_5_5_bar" style="width: 0%"></div>
+                                        </div>
+                                        <span style="width: 45px; text-align: right; font-weight: bold;" id="cards_over_5_5_pct">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Knockout Details Card (hidden by default) -->
                     <div class="stat-box ko-details-card" id="ko_card" style="display: none;">
                         <span class="stat-box-title" style="color: #67e8f9;">Knockout Stage Progression (To Qualify)</span>
@@ -1430,7 +1623,9 @@ def landing_page() -> str:
                             </div>
                             <div class="matrix-legend">
                                 <span>Lower</span>
-                                <div class="matrix-legend-gradient"></div>
+                                <div class="matrix-legend-gradient">
+                                    <div style="height: 100%; width: 100%; background: linear-gradient(to right, rgba(38, 47, 85, 0.2) 50%, var(--fwc-red) 100%);"></div>
+                                </div>
                                 <span>Higher</span>
                             </div>
                         </div>
@@ -1810,6 +2005,58 @@ def landing_page() -> str:
                 const expGoalsA = data.predictions.goals.expected_a;
                 const expGoalsB = data.predictions.goals.expected_b;
                 const bttsProb = (1 - Math.exp(-expGoalsA)) * (1 - Math.exp(-expGoalsB));
+
+                // Populate Corners Projection Card
+                const corners = data.predictions.corners;
+                document.getElementById('corners_team_a_label').innerText = teamA;
+                document.getElementById('corners_team_b_label').innerText = teamB;
+                document.getElementById('corners_exp_a').innerText = corners.expected_a.toFixed(2);
+                document.getElementById('corners_exp_b').innerText = corners.expected_b.toFixed(2);
+                document.getElementById('corners_exp_total').innerText = corners.expected_total.toFixed(2);
+
+                const possA = corners.possession_a;
+                const possB = corners.possession_b;
+                document.getElementById('poss_val_a').innerText = `${possA.toFixed(1)}%`;
+                document.getElementById('poss_val_b').innerText = `${possB.toFixed(1)}%`;
+                document.getElementById('poss_bar_a').style.width = `${possA}%`;
+                document.getElementById('poss_bar_b').style.width = `${possB}%`;
+
+                const cornersOU = corners.over_under;
+                document.getElementById('corners_over_7_5_bar').style.width = `${cornersOU.over_7_5 * 100}%`;
+                document.getElementById('corners_over_7_5_pct').innerText = `${(cornersOU.over_7_5 * 100).toFixed(1)}%`;
+                document.getElementById('corners_over_8_5_bar').style.width = `${cornersOU.over_8_5 * 100}%`;
+                document.getElementById('corners_over_8_5_pct').innerText = `${(cornersOU.over_8_5 * 100).toFixed(1)}%`;
+                document.getElementById('corners_over_9_5_bar').style.width = `${cornersOU.over_9_5 * 100}%`;
+                document.getElementById('corners_over_9_5_pct').innerText = `${(cornersOU.over_9_5 * 100).toFixed(1)}%`;
+                document.getElementById('corners_over_10_5_bar').style.width = `${cornersOU.over_10_5 * 100}%`;
+                document.getElementById('corners_over_10_5_pct').innerText = `${(cornersOU.over_10_5 * 100).toFixed(1)}%`;
+
+                // Populate Cards Projection Card
+                const cards = data.predictions.cards;
+                document.getElementById('cards_team_a_label').innerText = teamA;
+                document.getElementById('cards_team_b_label').innerText = teamB;
+                document.getElementById('cards_exp_a').innerText = cards.expected_a.toFixed(2);
+                document.getElementById('cards_exp_b').innerText = cards.expected_b.toFixed(2);
+                document.getElementById('cards_exp_total').innerText = cards.expected_total.toFixed(2);
+
+                const refereeStats = data.match_info.referee_stats;
+                if (refereeStats) {
+                    document.getElementById('cards_referee_val').innerText = `${refereeStats.referee} (Avg: ${refereeStats.yellow_cards_per_match} Y / ${refereeStats.red_cards_per_match} R)`;
+                } else if (data.match_info.referee) {
+                    document.getElementById('cards_referee_val').innerText = `${data.match_info.referee} (No stats)`;
+                } else {
+                    document.getElementById('cards_referee_val').innerText = "Not selected / General Avg";
+                }
+
+                const cardsOU = cards.over_under;
+                document.getElementById('cards_over_2_5_bar').style.width = `${cardsOU.over_2_5 * 100}%`;
+                document.getElementById('cards_over_2_5_pct').innerText = `${(cardsOU.over_2_5 * 100).toFixed(1)}%`;
+                document.getElementById('cards_over_3_5_bar').style.width = `${cardsOU.over_3_5 * 100}%`;
+                document.getElementById('cards_over_3_5_pct').innerText = `${(cardsOU.over_3_5 * 100).toFixed(1)}%`;
+                document.getElementById('cards_over_4_5_bar').style.width = `${cardsOU.over_4_5 * 100}%`;
+                document.getElementById('cards_over_4_5_pct').innerText = `${(cardsOU.over_4_5 * 100).toFixed(1)}%`;
+                document.getElementById('cards_over_5_5_bar').style.width = `${cardsOU.over_5_5 * 100}%`;
+                document.getElementById('cards_over_5_5_pct').innerText = `${(cardsOU.over_5_5 * 100).toFixed(1)}%`;
 
                 // Match Overview List
                 document.getElementById('ov_score').innerText = data.predictions.goals.top_exact_scores[0].score.replace('-', ' - ');
