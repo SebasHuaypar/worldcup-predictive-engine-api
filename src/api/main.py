@@ -1193,6 +1193,29 @@ def landing_page() -> str:
             .btn-docs-floating {
                 margin: 1rem auto 1.5rem auto !important;
             }
+
+            /* Matrix and chart adjustments for small screens */
+            .matrix-cell {
+                font-size: 0.55rem !important;
+                padding: 2px !important;
+            }
+            
+            .matrix-header-cell {
+                font-size: 0.7rem !important;
+            }
+            
+            .matrix-container {
+                gap: 0.25rem !important;
+            }
+            
+            .goals-bar-val {
+                font-size: 0.55rem !important;
+            }
+            
+            /* Insights adjustments for small screens */
+            .insights-grid {
+                grid-template-columns: 1fr !important;
+            }
         }
 
         @media (max-width: 400px) {
@@ -1206,6 +1229,10 @@ def landing_page() -> str:
             
             .win-prob-team-flag {
                 height: 22px !important;
+            }
+
+            .matrix-cell {
+                font-size: 0.5rem !important;
             }
         }
     </style>
@@ -1413,6 +1440,19 @@ def landing_page() -> str:
                                 <div class="segmented-bar-fill bar-fill-draw" id="wp_bar_draw" style="width: 0%"></div>
                                 <div class="segmented-bar-fill bar-fill-b" id="wp_bar_b" style="width: 0%"></div>
                             </div>
+
+                            <!-- Possession Split (Moved here for better visibility) -->
+                            <div style="margin-top: 1.2rem; border-top: 1px dashed var(--border-color); padding-top: 1rem;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">
+                                    <span style="color: var(--fwc-cyan);" id="poss_val_a">50.0%</span>
+                                    <span style="color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px;">Projected Possession</span>
+                                    <span style="color: var(--fwc-red);" id="poss_val_b">50.0%</span>
+                                </div>
+                                <div class="segmented-bar" style="height: 8px; margin: 0;">
+                                    <div class="segmented-bar-fill bar-fill-a" id="poss_bar_a" style="width: 50%"></div>
+                                    <div class="segmented-bar-fill bar-fill-b" id="poss_bar_b" style="width: 50%"></div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Card: Match Overview -->
@@ -1432,6 +1472,10 @@ def landing_page() -> str:
                                 <div class="overview-row">
                                     <span class="overview-label">Expected Goals (xG)</span>
                                     <span class="overview-value" id="ov_xg">0.00 - 0.00</span>
+                                </div>
+                                <div class="overview-row">
+                                    <span class="overview-label">Projected Possession</span>
+                                    <span class="overview-value" id="ov_possession" style="color: #ffffff">50.0% - 50.0%</span>
                                 </div>
                                 <div class="overview-row">
                                     <span class="overview-label">Both Teams to Score</span>
@@ -1474,19 +1518,6 @@ def landing_page() -> str:
                                     <div style="flex: 1;">
                                         <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;" id="corners_team_b_label">Team B</span>
                                         <div style="font-family: 'Oswald', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--fwc-red);" id="corners_exp_b">0.00</div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Possession Split -->
-                                <div style="display: flex; flex-direction: column; gap: 0.4rem;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: bold;">
-                                        <span style="color: var(--fwc-cyan);" id="poss_val_a">50.0%</span>
-                                        <span style="color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px;">Possession Split</span>
-                                        <span style="color: var(--fwc-red);" id="poss_val_b">50.0%</span>
-                                    </div>
-                                    <div class="segmented-bar" style="height: 8px; margin: 0;">
-                                        <div class="segmented-bar-fill bar-fill-a" id="poss_bar_a" style="width: 50%"></div>
-                                        <div class="segmented-bar-fill bar-fill-b" id="poss_bar_b" style="width: 50%"></div>
                                     </div>
                                 </div>
 
@@ -2061,6 +2092,7 @@ def landing_page() -> str:
                 // Match Overview List
                 document.getElementById('ov_score').innerText = data.predictions.goals.top_exact_scores[0].score.replace('-', ' - ');
                 document.getElementById('ov_xg').innerText = `${expGoalsA.toFixed(2)} - ${expGoalsB.toFixed(2)}`;
+                document.getElementById('ov_possession').innerText = `${possA.toFixed(1)}% - ${possB.toFixed(1)}%`;
                 document.getElementById('ov_btts').innerText = `${(bttsProb * 100).toFixed(1)}%`;
 
                 const fgA = data.predictions.events.first_goal_team_a;
