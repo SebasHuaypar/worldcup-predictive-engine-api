@@ -185,16 +185,54 @@ def predict_match_expectations(
         # Adjust expected corners using ELO difference and possession
         elo_mult_corners_a = max(0.2, 1.0 + 0.05 * (elo_diff / 400.0))
         elo_mult_corners_b = max(0.2, 1.0 - 0.05 * (elo_diff / 400.0))
-        lambda_corners_a = float(roll_corners_a_for * (poss_a / 50.0) * elo_mult_corners_a)
-        lambda_corners_b = float(roll_corners_b_for * (poss_b / 50.0) * elo_mult_corners_b)
-        lambda_corners_a = max(1.0, lambda_corners_a)
-        lambda_corners_b = max(1.0, lambda_corners_b)
         
-        # Adjust expected cards using ELO difference and possession
+        # Damp the possession multiplier to prevent extreme values for high-possession teams
+        poss_mult_a = 1.0 + 0.4 * ((poss_a - 50.0) / 50.0)
+        poss_mult_b = 1.0 + 0.4 * ((poss_b - 50.0) / 50.0)
+        
+        lambda_corners_a = float(roll_corners_a_for * poss_mult_a * elo_mult_corners_a)
+        lambda_corners_b = float(roll_corners_b_for * poss_mult_b * elo_mult_corners_b)
+        
+        # Use a more realistic minimum expected corner limit (2.0 instead of 1.0)
+        lambda_corners_a = max(2.0, lambda_corners_a)
+        lambda_corners_b = max(2.0, lambda_corners_b)
+        
+        # Get referee stats or use default averages
+        ref_stats_data = None
+        if referee:
+            ref_stats_data = get_referee_stats(referee, conn=conn)
+            
+        if ref_stats_data:
+            ref_yellows = ref_stats_data['yellow_cards_per_match']
+            ref_reds = ref_stats_data['red_cards_per_match']
+        else:
+            # Default averages across all referees in the database
+            ref_yellows = 4.18
+            ref_reds = 0.17
+            
+        ref_strictness = ref_yellows + 2.0 * ref_reds
+        
+        # Combine team baselines (30%) with referee strictness (70%)
+        team_cards_sum = roll_cards_a_for + roll_cards_b_for
+        expected_total_cards = 0.3 * team_cards_sum + 0.7 * ref_strictness
+        
+        # Calculate distribution weights based on ELO and inverse possession
         elo_mult_cards_a = max(0.2, 1.0 - 0.1 * (elo_diff / 400.0))
         elo_mult_cards_b = max(0.2, 1.0 + 0.1 * (elo_diff / 400.0))
-        lambda_cards_a = float(roll_cards_a_for * (poss_b / 50.0) * elo_mult_cards_a)
-        lambda_cards_b = float(roll_cards_b_for * (poss_a / 50.0) * elo_mult_cards_b)
+        
+        weight_a = (poss_b / 50.0) * elo_mult_cards_a
+        weight_b = (poss_a / 50.0) * elo_mult_cards_b
+        
+        total_weight = weight_a + weight_b
+        if total_weight > 0:
+            share_a = weight_a / total_weight
+            share_b = weight_b / total_weight
+        else:
+            share_a = 0.5
+            share_b = 0.5
+            
+        lambda_cards_a = expected_total_cards * share_a
+        lambda_cards_b = expected_total_cards * share_b
         lambda_cards_a = max(0.5, lambda_cards_a)
         lambda_cards_b = max(0.5, lambda_cards_b)
         
@@ -233,15 +271,8 @@ def predict_match_expectations(
                 poss_a = (new_poss_a / total_scaled) * 100.0
                 poss_b = 100.0 - poss_a
                 
-        # Referee adjustment
-        ref_stats_data = None
-        if referee:
-            ref_stats = get_referee_stats(referee, conn=conn)
-            if ref_stats:
-                ref_stats_data = ref_stats
-                factor_referee = ref_stats['yellow_cards_per_match'] / 4.0
-                lambda_cards_a *= factor_referee
-                lambda_cards_b *= factor_referee
+        # Referee adjustment (already integrated above)
+        pass
                 
     return {
         'team_a': team_a,
