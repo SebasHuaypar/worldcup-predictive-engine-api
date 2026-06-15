@@ -86,10 +86,12 @@ graph TD
         C1[Feature Builder]
         C2[XGBoost Trainer: RandomizedSearchCV]
         C3[(model_goals.pkl)]
+        C4[(model_outcome_classifier.pkl)]
         
         B2 --> C1
         C1 --> C2
         C2 --> C3
+        C2 --> C4
     end
 
     subgraph "Serving & API (src/api/)"
@@ -100,6 +102,7 @@ graph TD
         D5[Custom Swagger Docs]
         
         C3 --> D1
+        C4 --> D1
         B2 --> D1
         D1 --> D2
         D1 --> D3
@@ -157,9 +160,11 @@ The predictive engine gathers and processes data across three distinct time hori
 
 ## Machine Learning & Mathematics
 
-### 1. The Poisson XGBoost Model
-Football goals are discrete events occurring in a fixed interval (90 minutes). Therefore, they perfectly follow a **Poisson distribution**.
-Instead of using standard Linear Regression (which could predict negative goals), our `XGBRegressor` is configured with `objective='count:poisson'`.
+### 1. Dual-Model Architecture
+Predicting international football matches with high precision requires modeling both the goals scored (discrete count) and the overall match outcome (win/draw/loss). To achieve this, the predictive engine leverages a **dual-model ensemble**:
+
+#### A. The Poisson XGBoost Model (Goals Regressor)
+Football goals are discrete events occurring in a fixed interval (90 minutes). Therefore, they perfectly follow a **Poisson distribution**. Instead of using standard Linear Regression (which could predict negative goals), our `XGBRegressor` is configured with `objective='count:poisson'`.
 
 The unified regressor predicts the expected goal count (Lambda) of a team based on the following features:
 - `is_home`: Home advantage flag.
@@ -169,20 +174,37 @@ The unified regressor predicts the expected goal count (Lambda) of a team based 
 - `xg_style_self`, `xg_style_opponent`: Rolling expected goals average.
 - `rolling_gf_self_l5` / `rolling_ga_self_l5` (and `l10` equivalents): Recent goals scored/conceded.
 
-#### Hyperparameter Optimization:
-The model is tuned using `RandomizedSearchCV` over 3-fold cross-validation on Poisson deviance scoring (`scoring='neg_mean_poisson_deviance'`) to search for the best `max_depth`, `learning_rate`, and `n_estimators`.
+*Hyperparameter Optimization:* The model is tuned using `RandomizedSearchCV` over 3-fold cross-validation on Poisson deviance scoring (`scoring='neg_mean_poisson_deviance'`) to search for the best `max_depth`, `learning_rate`, and `n_estimators`.
+
+#### B. The XGBoost Multiclass Classifier (Outcome Classifier)
+Since independent Poisson models often underestimate the likelihood of draws in close, low-scoring matchups, we deploy an additional `XGBClassifier` with `objective='multi:softprob'`. This model directly classifies the match outcomes into three classes:
+- **Class 0:** Home Team Win
+- **Class 1:** Draw
+- **Class 2:** Away Team Win
+
+It is trained on the exact same features but optimizes multi-class log loss (`eval_metric='mlogloss'`).
 
 ### 2. Training Pipeline
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[Raw SQLite Data] --> B[Feature Engineering]
     B --> C[Compute ELO Deltas]
-    C --> D[Target Variable: Goals Scored]
-    D --> E[Train-Test Split 80/20]
-    E --> F[XGBoost Regressor]
-    F --> G[Cross-Validation]
-    G --> H[Save model_goals.pkl]
+    
+    C --> D1[Target: Goals Scored]
+    C --> D2[Target: Match Outcome]
+    
+    D1 --> E1[Train-Test Split 80/20]
+    D2 --> E2[Train-Test Split 80/20]
+    
+    E1 --> F1[XGBoost Regressor]
+    E2 --> F2[XGBoost Classifier]
+    
+    F1 --> G1[3-Fold CV: neg_mean_poisson_deviance]
+    F2 --> G2[3-Fold CV: neg_log_loss]
+    
+    G1 --> H1[Save model_goals.pkl]
+    G2 --> H2[Save model_outcome_classifier.pkl]
 ```
 
 ### 3. Dynamic ELO Adjustments
@@ -232,12 +254,46 @@ $$\lambda_{\text{corners}} = \text{Rolling Corners For} \times \text{Poss Mult} 
 
 A realistic floor of `2.0` expected corners per team is enforced.
 
-### 4. Monte Carlo Simulations
-Once the expected goal lambdas ($\lambda_A, \lambda_B$), corner lambdas, and card lambdas are calculated, the engine runs $N = 10,000$ simulation trials:
-1. Simulates $N$ goal counts for each team using $X_A \sim \text{Poisson}(\lambda_A)$ and $X_B \sim \text{Poisson}(\lambda_B)$.
-2. If `knockout` is enabled and a simulated match is a draw ($X_A = X_B$), the engine simulates 30 minutes of Extra Time (using $33.3\%$ of the 90-minute goal rate).
-3. If still tied after Extra Time, it simulates a round-by-round penalty shootout where scoring success rates are derived from team ELO values.
-4. Extra variance is added based on red card probabilities and altitude adjustments.
+### 4. Monte Carlo Simulations & Probability Calibration
+Once the expected goal lambdas ($\lambda_A, \lambda_B$), corner lambdas, and card lambdas are calculated, the simulation and calibration proceed through the following steps:
+
+#### A. Joint Bivariate Distribution & Dixon-Coles Correction
+To capture the dependency between goal counts (especially for low-scoring match outcomes like 0-0, 1-0, 0-1, and 1-1), the engine constructs a bivariate Poisson distribution and applies a dynamic Dixon-Coles adjustment parameter $\rho$. The correlation factor $\rho$ decays exponentially based on the expected goals:
+
+$$\rho = -0.22 \times e^{-\frac{\lambda_a + \lambda_b}{2.0}}$$
+
+The joint probability matrix for goal counts $(x_a, x_b) \in [0, 10] \times [0, 10]$ is adjusted using the correction function $\tau(x_a, x_b)$:
+
+$$\tau(x_a, x_b) = \begin{cases}
+1 - \lambda_a \lambda_b \rho & \text{if } x_a = 0, x_b = 0 \\
+1 + \lambda_b \rho & \text{if } x_a = 1, x_b = 0 \\
+1 + \lambda_a \rho & \text{if } x_a = 0, x_b = 1 \\
+1 - \rho & \text{if } x_a = 1, x_b = 1 \\
+1 & \text{otherwise}
+\end{cases}$$
+
+$$\text{Adjusted Prob}(x_a, x_b) = P(X_a = x_a) P(X_b = x_b) \times \tau(x_a, x_b)$$
+
+#### B. Ensemble Blending
+The engine samples $N = 10,000$ matches from this joint distribution to calculate the Monte Carlo outcome probabilities ($P_{\text{MC}}(\text{Win}_A)$, $P_{\text{MC}}(\text{Draw})$, $P_{\text{MC}}(\text{Win}_B)$). To combine the strengths of Poisson simulations and direct machine learning predictions, these outcomes are blended 50/50 with the outputs of the XGBoost Multiclass Classifier ($P_{\text{CLF}}$):
+
+$$P_{\text{final}}(\text{Outcome}) = 0.5 \times P_{\text{MC}}(\text{Outcome}) + 0.5 \times P_{\text{CLF}}(\text{Outcome})$$
+
+#### C. Exact Score Probability Calibration
+To align the individual score probabilities (like 1-0, 2-1) with the newly blended outcome probabilities, the engine dynamically scales the joint distribution. For each simulated match score $(g_a, g_b)$, the probability is weighted by a scale factor $w$:
+
+$$w = \begin{cases} 
+\frac{P_{\text{final}}(\text{Win}_A)}{P_{\text{MC}}(\text{Win}_A)} & \text{if } g_a > g_b \\
+\frac{P_{\text{final}}(\text{Draw})}{P_{\text{MC}}(\text{Draw})} & \text{if } g_a = g_b \\
+\frac{P_{\text{final}}(\text{Win}_B)}{P_{\text{MC}}(\text{Win}_B)} & \text{if } g_a < g_b
+\end{cases}$$
+
+The exact score probabilities are then re-normalized to sum to $1.0$. This ensures the relative likelihoods of different scorelines within the same outcome category are preserved, while their aggregated sum perfectly matches the ensemble probabilities.
+
+#### D. Knockout Stage Logic
+1. If `knockout` is enabled and a simulated match is a draw after 90 minutes, the engine simulates 30 minutes of Extra Time (using $33.3\%$ of the 90-minute goal rate).
+2. If still tied after Extra Time, it simulates a round-by-round penalty shootout where scoring success rates are derived from team ELO values.
+3. Extra variance is added based on red card probabilities and altitude adjustments.
 
 ### 5. ELO Rating Engine
 Our custom ELO engine calculates dynamic ratings. Every team starts at `1500`. After a match, points are exchanged based on:
@@ -276,7 +332,7 @@ Want to run the predictive engine on your own machine? Follow these steps:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/personalworldcupproject.git
+   git clone https://github.com/SebasHuaypar/personalworldcupproject.git
    cd personalworldcupproject
    ```
 
