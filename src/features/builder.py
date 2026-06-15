@@ -292,6 +292,31 @@ def build_features_dataset() -> pd.DataFrame:
             'xg_per_match': float(history[0]['xg_per_match']) if history[0]['xg_per_match'] is not None else 1.2
         }
         
+    def get_conf_coeff(team_name: str) -> float:
+        team_lower = team_name.lower()
+        conmebol = {'argentina', 'brazil', 'uruguay', 'colombia', 'ecuador', 'paraguay', 'chile', 'peru', 'bolivia', 'venezuela'}
+        uefa = {'germany', 'france', 'spain', 'portugal', 'england', 'belgium', 'netherlands', 'croatia', 'italy', 'switzerland', 
+                'austria', 'sweden', 'scotland', 'czech republic', 'poland', 'slovakia', 'slovenia', 'romania', 'georgia', 
+                'hungary', 'albania', 'norway', 'denmark', 'ukraine', 'bosnia and herzegovina', 'russia', 'turkey', 'greece', 'wales',
+                'republic of ireland'}
+        if team_lower in conmebol or team_lower in uefa:
+            return 1.0
+        concacaf = {'united states', 'usa', 'mexico', 'canada', 'jamaica', 'panama', 'costa rica', 'haiti', 'curaçao', 'curacao', 'el salvador', 'honduras', 'trinidad and tobago'}
+        if team_lower in concacaf:
+            return 0.85
+        afc = {'japan', 'iran', 'south korea', 'australia', 'qatar', 'saudi arabia', 'iraq', 'jordan', 'uzbekistan', 'china'}
+        if team_lower in afc:
+            return 0.85
+        caf = {'morocco', 'senegal', 'nigeria', 'ivory coast', 'egypt', 'ghana', 'cameroon', 'tunisia', 'south africa', 'algeria', 
+               'dr congo', 'angola', 'mali', 'guinea', 'mauritania', 'namibia', 'cape verde', 'cabo verde', 'equatorial guinea', 
+               'gambia', 'guinea-bissau', 'mozambique', 'zambia', 'tanzania'}
+        if team_lower in caf:
+            return 0.85
+        ofc = {'new zealand'}
+        if team_lower in ofc:
+            return 0.70
+        return 0.80
+
     # Build features for matches since 2010
     train_matches = df_matches[df_matches['date'] >= '2010-01-01'].copy()
     
@@ -312,9 +337,25 @@ def build_features_dataset() -> pd.DataFrame:
         elo_home = get_latest_elo_opt(home, date)
         elo_away = get_latest_elo_opt(away, date)
         
+        # Get ELO trend (6 months ago)
+        date_dt = pd.to_datetime(date)
+        date_6m_ago = (date_dt - pd.Timedelta(days=180)).strftime('%Y-%m-%d')
+        elo_home_6m = get_latest_elo_opt(home, date_6m_ago)
+        elo_away_6m = get_latest_elo_opt(away, date_6m_ago)
+        elo_trend_home = elo_home - elo_home_6m
+        elo_trend_away = elo_away - elo_away_6m
+        
         # Get market values
         market_value_home = get_squad_value_opt(home)
         market_value_away = get_squad_value_opt(away)
+        
+        # Market value ratio
+        mv_ratio_home = market_value_home / market_value_away if market_value_away > 0 else 1.0
+        mv_ratio_away = market_value_away / market_value_home if market_value_home > 0 else 1.0
+        
+        # Confederation coefficients
+        conf_coeff_home = get_conf_coeff(home)
+        conf_coeff_away = get_conf_coeff(away)
         
         # Get squad stats
         stats_home = get_latest_squad_stats_opt(home, match_year)
@@ -329,6 +370,7 @@ def build_features_dataset() -> pd.DataFrame:
         
         # ROW 1: Home team's perspective
         is_home_val_1 = 1.0 if not neutral else 0.0
+        outcome_1 = 2 if home_score > away_score else (1 if home_score == away_score else 0)
         features.append({
             'date': date,
             'team': home,
@@ -337,9 +379,16 @@ def build_features_dataset() -> pd.DataFrame:
             'elo_self': elo_home,
             'elo_opponent': elo_away,
             'elo_diff': elo_home - elo_away,
+            'elo_trend_self': elo_trend_home,
+            'elo_trend_opponent': elo_trend_away,
+            'elo_trend_diff': elo_trend_home - elo_trend_away,
             'market_value_self': market_value_home,
             'market_value_opponent': market_value_away,
             'market_value_diff': market_value_home - market_value_away,
+            'market_value_ratio': mv_ratio_home,
+            'conf_coeff_self': conf_coeff_home,
+            'conf_coeff_opponent': conf_coeff_away,
+            'conf_coeff_diff': conf_coeff_home - conf_coeff_away,
             'poss_style_self': stats_home['possession'],
             'poss_style_opponent': stats_away['possession'],
             'xg_style_self': stats_home['xg_per_match'],
@@ -352,11 +401,13 @@ def build_features_dataset() -> pd.DataFrame:
             'rolling_ga_self_l10': home_ga_l10,
             'rolling_gf_opp_l10': away_gf_l10,
             'rolling_ga_opp_l10': away_ga_l10,
-            'goals_scored': home_score
+            'goals_scored': home_score,
+            'match_outcome': outcome_1
         })
         
         # ROW 2: Away team's perspective
         is_home_val_2 = 0.0  # Away team is never home (and neutral is also 0.0)
+        outcome_2 = 2 if away_score > home_score else (1 if home_score == away_score else 0)
         features.append({
             'date': date,
             'team': away,
@@ -365,9 +416,16 @@ def build_features_dataset() -> pd.DataFrame:
             'elo_self': elo_away,
             'elo_opponent': elo_home,
             'elo_diff': elo_away - elo_home,
+            'elo_trend_self': elo_trend_away,
+            'elo_trend_opponent': elo_trend_home,
+            'elo_trend_diff': elo_trend_away - elo_trend_home,
             'market_value_self': market_value_away,
             'market_value_opponent': market_value_home,
             'market_value_diff': market_value_away - market_value_home,
+            'market_value_ratio': mv_ratio_away,
+            'conf_coeff_self': conf_coeff_away,
+            'conf_coeff_opponent': conf_coeff_home,
+            'conf_coeff_diff': conf_coeff_away - conf_coeff_home,
             'poss_style_self': stats_away['possession'],
             'poss_style_opponent': stats_home['possession'],
             'xg_style_self': stats_away['xg_per_match'],
@@ -380,7 +438,8 @@ def build_features_dataset() -> pd.DataFrame:
             'rolling_ga_self_l10': away_ga_l10,
             'rolling_gf_opp_l10': home_gf_l10,
             'rolling_ga_opp_l10': home_ga_l10,
-            'goals_scored': away_score
+            'goals_scored': away_score,
+            'match_outcome': outcome_2
         })
         
         if len(features) % 10000 == 0:
