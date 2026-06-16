@@ -2183,12 +2183,26 @@ def landing_page() -> str:
                     matrixGrid.appendChild(headerCell);
                 }
 
+                const allScores = data.predictions.goals.all_exact_scores || {};
+                function getCalibratedProb(r, c) {
+                    let probSum = 0;
+                    for (const [scoreKey, prob] of Object.entries(allScores)) {
+                        const [ga, gb] = scoreKey.split('-').map(Number);
+                        const isMatchA = (r === 4) ? (ga >= 4) : (ga === r);
+                        const isMatchB = (c === 4) ? (gb >= 4) : (gb === c);
+                        if (isMatchA && isMatchB) {
+                            probSum += prob;
+                        }
+                    }
+                    return probSum;
+                }
+
                 let maxCellProb = 0;
                 const cellProbs = [];
                 for (let r = 0; r < 5; r++) {
                     cellProbs[r] = [];
                     for (let c = 0; c < 5; c++) {
-                        const val = pA[r] * pB[c];
+                        const val = getCalibratedProb(r, c);
                         cellProbs[r][c] = val;
                         if (val > maxCellProb) maxCellProb = val;
                     }

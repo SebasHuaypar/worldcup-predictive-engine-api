@@ -649,7 +649,8 @@ def run_monte_carlo_simulation(
                 "expected_a": calibrated_exp_goals_a,
                 "expected_b": calibrated_exp_goals_b,
                 "expected_total": calibrated_exp_goals_a + calibrated_exp_goals_b,
-                "top_exact_scores": top_scores
+                "top_exact_scores": top_scores,
+                "all_exact_scores": scores
             },
             "corners": {
                 "expected_a": avg_corners_a,

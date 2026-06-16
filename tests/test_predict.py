@@ -75,10 +75,21 @@ def test_prediction_engine():
         res_missing = run_monte_carlo_simulation("Argentina", "France", neutral=True, n_sims=10000, missing_players_a=3)
         elo_a_raw = res_missing['match_info']['elo_a_raw']
         elo_a_adj = res_missing['match_info']['elo_a_adjusted']
-        absences_count = len([ab for ab in res_missing['match_info']['absences_a'] if ab.get('severity') == 'star_player'])
-        total_missing = 3 + absences_count
-        print(f" - Raw ELO: {elo_a_raw:.2f}, Adjusted ELO ({total_missing} missing): {elo_a_adj:.2f}")
-        assert abs(elo_a_adj - elo_a_raw * (1.0 - 0.025 * total_missing)) < 0.01, "ELO adjustment for missing players is mathematically incorrect!"
+        abs_penalty = 0.0
+        for ab in res_missing['match_info']['absences_a']:
+            sev = ab.get('severity', '').lower()
+            if sev == 'star_player':
+                abs_penalty += 0.020
+            elif sev == 'major':
+                abs_penalty += 0.010
+            else:
+                abs_penalty += 0.005
+        expected_penalty = abs_penalty + 0.0075 * 3
+        expected_elo_adj = elo_a_raw * (1.0 - expected_penalty)
+        expected_elo_adj = max(elo_a_raw * 0.60, expected_elo_adj)
+        
+        print(f" - Raw ELO: {elo_a_raw:.2f}, Adjusted ELO: {elo_a_adj:.2f}, Expected ELO: {expected_elo_adj:.2f}")
+        assert abs(elo_a_adj - expected_elo_adj) < 0.01, "ELO adjustment for missing players is mathematically incorrect!"
         
         # Check that Argentina's win probability dropped compared to Test 2
         p_win_a_raw = res['predictions']['outcomes']['win_a']
